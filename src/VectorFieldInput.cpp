@@ -11,9 +11,10 @@ VectorFieldInput::VectorFieldInput( cv::Mat img )
 {
     // Convert image to grayscale. Effectively a scalar field
     cv::cvtColor( img, mScalarField, cv::COLOR_RGB2GRAY );
+//    img.convertTo(mScalarField, CV_8U, 255.0);
 
     // Convert to binary image
-    cv::threshold( mScalarField, mBinaryField, 100, 255, 0 );
+    cv::threshold( mScalarField, mScalarField, 100, 255, 0 );
 
     // Get contours and hierarchy
     findContours(
@@ -25,11 +26,34 @@ VectorFieldInput::VectorFieldInput( cv::Mat img )
             cv::Point( 0, 0 )
     );
 
-    int imgWidth = 1000;
-    int imgHeight = 600;
-    auto contour = mContours[0];
+    int imgWidth = mScalarField.size().width;
+    int imgHeight = mScalarField.size().height;
 
-//    cv::Mat drawing = cv::Mat::zeros( mBinaryField.size(), CV_8UC3 );
+    cv::imshow( "depth", mScalarField );
+
+    cv::waitKey(1);
+
+//    cv::imshow( "binary", mScalarField );
+//
+//    cv::waitKey(1);
+
+//    cv::Mat drawing = cv::Mat::zeros( mScalarField.size(), CV_8UC3 );
+//    cv::RNG rng(12345);
+//    for( int i = 0; i< mContours.size(); i++ )
+//    {
+//        cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+//        drawContours( drawing, mContours, i, color, 2, 8, mHierarchy, 0, cv::Point() );
+//    }
+//
+//    /// Show in a window
+//    cv::namedWindow( "Contours", CV_WINDOW_AUTOSIZE );
+//    cv::imshow( "Contours", drawing );
+//
+//    cv::waitKey(1);
+
+    std::vector< cv::Point > contour;
+    if ( !mContours.empty() )
+        contour = mContours[0];
 
     for( int x = 0; x < imgWidth; x += 1 )
     {
@@ -42,7 +66,11 @@ VectorFieldInput::VectorFieldInput( cv::Mat img )
             std::vector <float> v;
             mVectorField[x].push_back( v );
             auto particlePoint = cv::Point( x, y );
-            double mag = pointPolygonTest( contour, cv::Point( particlePoint.x, particlePoint.y ), true );
+
+            double mag = 0;
+            if ( !mContours.empty() )
+                mag = pointPolygonTest( contour, cv::Point( particlePoint.x, particlePoint.y ), true );
+
             if( mag > 10 )
             {
                 cv::Point closest = contour[0];
@@ -61,15 +89,10 @@ VectorFieldInput::VectorFieldInput( cv::Mat img )
                 auto diffVec = getDiffVec( closest,  particlePoint );
                 double vecMag = getVecMag( diffVec );
                 auto unitVec = getUnitVec( diffVec, vecMag );
-//                auto vecPoint = getVecPoint( particlePoint, unitVec );
-
-//                mVectorField[x][y][0] = unitVec.x;
-//                mVectorField[x][y][1] = unitVec.y;
 
                 mVectorField[x][y].push_back( unitVec.x * static_cast<float>(mag) / 8 );
                 mVectorField[x][y].push_back( unitVec.y * static_cast<float>(mag) / 8 );
 
-//                cv::line( drawing, particlePoint, vecPoint, cv::Scalar( 0, 255, 0 ) );
             }
             else
             {
@@ -79,11 +102,6 @@ VectorFieldInput::VectorFieldInput( cv::Mat img )
 
         }
     }
-//    std::cout << "size: " << mVectorField.size() << std::endl;
-//    std::cout << "size: " << mVectorField[0].size() << std::endl;
-//    std::cout << "size: " << mVectorField[0][0].size() << std::endl;
-//    std::cout << mVectorField[300][200][1] << std::endl;
-//    cv::imshow( "Contours", drawing );
 }
 
 cv::Point VectorFieldInput::getDiffVec( cv::Point destVec, cv::Point originVec )

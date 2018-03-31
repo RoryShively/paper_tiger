@@ -33,8 +33,18 @@ public:
 //    float* getField() { return *mVectorField; }
     std::vector<std::vector<std::vector<float>>>& getField() { return mVectorField; }
     ci::vec2 getVec(int x, int y) {
-        float vecX = mVectorField[x][y][0];
-        float vecY = mVectorField[x][y][1];
+        int xSize = mVectorField.size();
+        int ySize = mVectorField[0].size();
+
+        float vecX, vecY;
+        if ( x < xSize && y < ySize )
+        {
+            vecX = mVectorField[x][y][0];
+            vecY = mVectorField[x][y][1];
+        }
+        else
+            vecX = 0.0f; vecY = 0.0f;
+
 //        std::cout << x << " " << y << "HAS: " << vecX << " " << vecY << std::endl;
         return ci::vec2( vecX * 2, vecY * 2 );
     }

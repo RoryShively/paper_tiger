@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 set( CMAKE_VERBOSE_MAKEFILE ON )
 
 project(paper_tiger)
@@ -14,10 +14,14 @@ include( ${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake )
 
 find_package(  OpenCV REQUIRED )
 
+set( CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} /Users/Rory/Development/libfreenect2 )
+find_package( freenect2 REQUIRED )
+
+
 ci_make_app(
         APP_NAME    "PaperTigerApp"
         CINDER_PATH ${CINDER_PATH}
-        SOURCES     ${APP_PATH}/src/PaperTigerApp.cpp ${APP_PATH}/src/Particle.cpp ${APP_PATH}/src/ParticleController.cpp ${APP_PATH}/src/VectorFieldInput.cpp
-        INCLUDES    ${APP_PATH}/include
-        LIBRARIES   ${OpenCV_LIBS}
+        SOURCES     ${APP_PATH}/src/PaperTigerApp.cpp ${APP_PATH}/src/Particle.cpp ${APP_PATH}/src/ParticleController.cpp ${APP_PATH}/src/VectorFieldInput.cpp ${APP_PATH}/src/Kinect.cpp
+        INCLUDES    ${APP_PATH}/include /Users/Rory/Development/libfreenect2/include
+        LIBRARIES   ${OpenCV_LIBS} ${freenect2_LIBRARIES}
 )

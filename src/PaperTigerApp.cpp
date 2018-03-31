@@ -1,3 +1,5 @@
+#include <thread>
+
 #include "opencv2/opencv.hpp"
 
 #include "cinder/app/App.h"
@@ -6,6 +8,7 @@
 #include "cinder/Log.h"
 
 #include "../include/ParticleController.hpp"
+#include "../include/Kinect.hpp"
 #include "VectorFieldInput.hpp"
 
 
@@ -17,6 +20,9 @@ private:
     ParticleController          mParticleController;
     ci::vec2                    mMouseLoc;
     VectorFieldInput            mVectorField;
+
+    std::thread                 kinectThread;
+    cv::Mat                     inputMatrix;
 
 public:
     void setup() override;
@@ -31,20 +37,33 @@ public:
         { ci::log::makeLogger<ci::log::LoggerFile>( "/tmp/logging/cinder.log", true ); }
 };
 
+
+void setupKinect( cv::Mat* inputMatRef )
+{
+    std::cout << "type at setup kinect: " << inputMatRef << std::endl;
+    auto kinect = Kinect( inputMatRef );
+//    std::cout << kinect.getSerial() << std::endl;
+//    kinect.start();
+}
+
 void PaperTigerApp::setup()
 {
+    // Pipe image data to inputMatrix through Kinect
+//    kinectThread = std::thread( setupKinect, &inputMatrix );
+
     // Load background image
     ci::ImageSourceRef img = ci::loadImage( ci::app::loadAsset( "tiger.jpg" ) );
-    ci::ImageSourceRef mInput = ci::loadImage( ci::app::loadAsset( "blob2.jpg" ) );
-//    mImgChannel = Channel32f( img );
 
     // Load particles
     mParticleController = ParticleController( img );
 
     // OpenCV Test
     // ###########
-    auto input = cv::imread( "/Users/rory.shively/CLionProjects/paper_tiger/assets/blob2.jpg", -1 );
+//    sleep( 5 ); // Sleep 2 seconds
+//    mVectorField = VectorFieldInput( inputMatrix );
+    auto input = cv::imread( "/Users/Rory/CLionProjects/paper_tiger/assets/blob2.jpg", -1 );
     mVectorField = VectorFieldInput( input );
+
 }
 
 void PaperTigerApp::mouseDown( ci::app::MouseEvent event )
@@ -68,6 +87,13 @@ void PaperTigerApp::mouseDrag( ci::app::MouseEvent event ) {
 void PaperTigerApp::update()
 {
     mParticleController.update( mImgChannel, mMouseLoc, mInput, mVectorField, mExpel );
+
+//    std::cout << "[update func] [matrix &]: " << &inputMatrix << std::endl;
+//    std::cout << "[update func] [inputMatrix.size]: " << inputMatrix.size << std::endl;
+//
+//    cv::imshow( "depth", inputMatrix / 4500.0f );
+//
+//    cv::waitKey(1);
 }
 
 void PaperTigerApp::draw()
