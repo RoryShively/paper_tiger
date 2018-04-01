@@ -21,8 +21,12 @@ private:
     ci::vec2                    mMouseLoc;
     VectorFieldInput            mVectorField;
 
+    // Kinect related stuff
     std::thread                 kinectThread;
     cv::Mat                     inputMatrix;
+
+    // Temporary
+    cv::Mat                     input;
 
 public:
     void setup() override;
@@ -61,9 +65,8 @@ void PaperTigerApp::setup()
     // ###########
 //    sleep( 5 ); // Sleep 2 seconds
 //    mVectorField = VectorFieldInput( inputMatrix );
-    auto input = cv::imread( "/Users/Rory/CLionProjects/paper_tiger/assets/blob2.jpg", -1 );
-    mVectorField = VectorFieldInput( input );
-
+    input = cv::imread( "/Users/Rory/CLionProjects/paper_tiger/assets/blob2.jpg", -1 );
+//    mVectorField = VectorFieldInput( input );
 }
 
 void PaperTigerApp::mouseDown( ci::app::MouseEvent event )
@@ -86,7 +89,8 @@ void PaperTigerApp::mouseDrag( ci::app::MouseEvent event ) {
 
 void PaperTigerApp::update()
 {
-    mParticleController.update( mImgChannel, mMouseLoc, mInput, mVectorField, mExpel );
+    mVectorField = VectorFieldInput( input );
+    mParticleController.update( mImgChannel, mVectorField, mExpel );
 
 //    std::cout << "[update func] [matrix &]: " << &inputMatrix << std::endl;
 //    std::cout << "[update func] [inputMatrix.size]: " << inputMatrix.size << std::endl;

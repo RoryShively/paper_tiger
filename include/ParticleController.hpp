@@ -19,7 +19,7 @@ public:
     ParticleController() {};
     ParticleController( ci::ImageSourceRef &img );
 
-    void update( const ci::Channel32f &channel, const ci::vec2 &mouseLoc, ci::ImageSourceRef &input, VectorFieldInput &vInput, bool mExpel );
+    void update( const ci::Channel32f &channel, VectorFieldInput &vInput, bool mExpel );
     void draw();
     void addParticles( int amt );
     void addParticle( int xi, int yi, const ci::Channel32f &channel );

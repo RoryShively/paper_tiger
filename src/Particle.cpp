@@ -16,7 +16,7 @@ ci::vec2 getDiffVec( ci::vec2 destVec, ci::vec2 originVec )
 
 float getVecMag( ci::vec2 diffVec )
 {
-    return pow( ( pow((diffVec.x ), 2 ) + pow( ( diffVec.y ), 2) ), 0.5 );
+    return float( pow( ( pow((diffVec.x ), 2 ) + pow( ( diffVec.y ), 2) ), 0.5 ) );
 }
 
 ci::vec2 getUnitVec( ci::vec2 vec )
@@ -49,10 +49,10 @@ Particle::Particle( ci::vec2 loc, const ci::Channel32f &channel )
     mRadius = channel.getValue( loc ) * 4.0f;
 
     float gray = channel.getValue( loc );
-    mColor = ci::Color( 0, gray / 1.6, gray );
+    mColor = ci::Color( 0, float( gray / 1.6) , gray );
 }
 
-void Particle::update( const ci::Channel32f &channel, const ci::vec2 &mouseLoc, ci::ImageSourceRef &input, VectorFieldInput &vInput, bool mExpel )
+void Particle::update( const ci::Channel32f &channel, VectorFieldInput &vInput, bool mExpel )
 {
 //    auto expelVec = getDiffVec( mLoc,  mouseLoc );
 //    float expelMagtitude = getVecMag( expelVec );
@@ -73,14 +73,13 @@ void Particle::update( const ci::Channel32f &channel, const ci::vec2 &mouseLoc, 
 
     if ( mExpel )
     {
-        int locX = static_cast<int>(mLoc.x);
-        int locY = static_cast<int>(mLoc.y);
+        auto locX = static_cast<int>(mLoc.x);
+        auto locY = static_cast<int>(mLoc.y);
         auto eVec = vInput.getVec( locX, locY );
         mMomentum = eVec + gVec;
     } else {
         mMomentum = gVec;
     }
-
 
     mLoc += mMomentum;
 }

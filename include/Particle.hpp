@@ -21,6 +21,6 @@ protected:
 
 public:
     Particle( ci::vec2 loc, const ci::Channel32f &channel );
-    void update( const ci::Channel32f &channel, const ci::vec2 &mouseLoc, ci::ImageSourceRef &input, VectorFieldInput &vInput, bool mExpel );
+    void update( const ci::Channel32f &channel, VectorFieldInput &vInput, bool mExpel );
     void draw();
 };

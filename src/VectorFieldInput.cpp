@@ -2,6 +2,7 @@
 // Created by Rory Shively on 2/26/18.
 //
 
+#include <chrono>
 #include "opencv2/opencv.hpp"
 
 #include "../include/VectorFieldInput.hpp"
@@ -9,12 +10,15 @@
 
 VectorFieldInput::VectorFieldInput( cv::Mat img )
 {
+    // Start timer here
+//    auto timeStart = std::chrono::high_resolution_clock::now();
+
     // Convert image to grayscale. Effectively a scalar field
     cv::cvtColor( img, mScalarField, cv::COLOR_RGB2GRAY );
 //    img.convertTo(mScalarField, CV_8U, 255.0);
 
     // Convert to binary image
-    cv::threshold( mScalarField, mScalarField, 100, 255, 0 );
+    cv::threshold( mScalarField, mBinaryField, 100, 255, 0 );
 
     // Get contours and hierarchy
     findContours(
@@ -29,7 +33,15 @@ VectorFieldInput::VectorFieldInput( cv::Mat img )
     int imgWidth = mScalarField.size().width;
     int imgHeight = mScalarField.size().height;
 
-    cv::imshow( "depth", mScalarField );
+    // Draw contours
+    cv::Mat ScalarWithContour = mScalarField.clone();
+    for( int i = 0; i< mContours.size(); i++ )
+    {
+        cv::Scalar color = cv::Scalar( 255, 0, 0 );
+        drawContours( ScalarWithContour, mContours, i, color, 2, 8, mHierarchy, 0, cv::Point() );
+    }
+
+    cv::imshow( "depth", ScalarWithContour );
 
     cv::waitKey(1);
 
@@ -55,17 +67,18 @@ VectorFieldInput::VectorFieldInput( cv::Mat img )
     if ( !mContours.empty() )
         contour = mContours[0];
 
-    for( int x = 0; x < imgWidth; x += 1 )
+    for( int x = 0; x < (imgWidth / 10); x += 1 )
     {
-        std::vector < std::vector < float > > w;
+        auto targetX = x * 10;
+        std::vector < std::vector < float >> w;
         mVectorField.push_back( w );
 
-        for( int y = 0; y < imgHeight; y += 1 )
+        for( int y = 0; y < (imgHeight / 10); y += 1 )
         {
-
+            auto targetY = y * 10;
             std::vector <float> v;
             mVectorField[x].push_back( v );
-            auto particlePoint = cv::Point( x, y );
+            auto particlePoint = cv::Point( targetX, targetY );
 
             double mag = 0;
             if ( !mContours.empty() )
@@ -92,7 +105,6 @@ VectorFieldInput::VectorFieldInput( cv::Mat img )
 
                 mVectorField[x][y].push_back( unitVec.x * static_cast<float>(mag) / 8 );
                 mVectorField[x][y].push_back( unitVec.y * static_cast<float>(mag) / 8 );
-
             }
             else
             {
@@ -102,6 +114,11 @@ VectorFieldInput::VectorFieldInput( cv::Mat img )
 
         }
     }
+
+    // End timer
+//    auto timeEnd = std::chrono::high_resolution_clock::now();
+//    std::chrono::duration<float> timeDur = timeEnd - timeStart;
+//    std::cout << "VectorFieldInput creation time: " << timeDur.count() << " s" << std::endl;
 }
 
 cv::Point VectorFieldInput::getDiffVec( cv::Point destVec, cv::Point originVec )

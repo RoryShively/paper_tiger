@@ -37,15 +37,17 @@ public:
         int ySize = mVectorField[0].size();
 
         float vecX, vecY;
+        x = std::floor( x / 10 ); y = std::floor(y / 10);
         if ( x < xSize && y < ySize )
         {
             vecX = mVectorField[x][y][0];
             vecY = mVectorField[x][y][1];
         }
-        else
-            vecX = 0.0f; vecY = 0.0f;
+        else {
+            vecX = 0.0f;
+            vecY = 0.0f;
+        }
 
-//        std::cout << x << " " << y << "HAS: " << vecX << " " << vecY << std::endl;
         return ci::vec2( vecX * 2, vecY * 2 );
     }
 
